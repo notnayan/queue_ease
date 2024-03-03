@@ -1,7 +1,7 @@
 class QETexts {
   // Global Texts
   static const appName = "QueueEase";
-  static const appSlogan = "Let us Queue, While you pursue!";
+  static const appSlogan = "Let us Queue\nWhile you pursue!";
 
   //Onboarding Texts
   static const onBoardingTitle1 = "Welcome to QueueEase";
