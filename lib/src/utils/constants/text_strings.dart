@@ -14,4 +14,10 @@ class QETexts {
       "1. Book an agent\n2. Your agent stands in line for you\n3. Receive real-time updates. It's that simple!";
   static const onBoardingSubTitle3 =
       "Save time, reduce stress, and enjoy the convenience of skipping lines. With QueueEase, focus on what matters while we handle the queues for you.";
+
+  //Welcome Texts
+  static const welcomeTitle = "Life on EasyMode";
+  static const welcomeSubtitle = "Wave goodbye to that scorching sun, noisy crowds and awful wait times. The days of waiting hours are long gone.\nJOIN US TO SKIP QUEUES!";
 }
+
+

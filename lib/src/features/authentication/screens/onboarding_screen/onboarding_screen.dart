@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:queue_ease/src/features/authentication/controllers/onboarding_controller.dart';
-import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_navigation.dart';
-import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_next.dart';
-import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_page.dart';
-import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_skip.dart';
+import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/onboarding.widgets/onboarding_navigation.dart';
+import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/onboarding.widgets/onboarding_next.dart';
+import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/onboarding.widgets/onboarding_page.dart';
+import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/onboarding.widgets/onboarding_skip.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
