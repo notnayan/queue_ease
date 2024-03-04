@@ -10,7 +10,7 @@ class SplashHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Transform.rotate(
-        angle: -0.35,
+        angle: -0.25,
         child: Text(
           QETexts.appSlogan,
           style: Theme.of(context).textTheme.headlineLarge,

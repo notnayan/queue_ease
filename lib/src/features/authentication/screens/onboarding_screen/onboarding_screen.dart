@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:queue_ease/src/features/authentication/controllers/onboarding_controller.dart';
 import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_navigation.dart';
 import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_next.dart';
 import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/widgets/onboarding_page.dart';
@@ -6,23 +8,19 @@ import 'package:queue_ease/src/features/authentication/screens/onboarding_screen
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController pageController = PageController();
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.put(OnBoardingController());
+    
     return Scaffold(
       body: Stack(
         children: [
           PageView(
-            controller: pageController,
+            controller: controller.pageController,
+            onPageChanged: controller.updatePageIndicator,
             children: const [
               OnboardingPage(
                   image: QEImage.onboardingScreen1,
@@ -38,15 +36,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   subtitle: QETexts.onBoardingSubTitle3),
             ],
           ),
-          OnboardingNavigation(
-            pageController: pageController,
-          ),
-          OnboardingSkip(
-            pageController: pageController,
-          ),
-          OnboardingNext(
-            pageController: pageController,
-          )
+          const OnboardingNavigation(),
+          const OnboardingSkip(),
+          const OnboardingNext()
         ],
       ),
     );

@@ -1,8 +1,8 @@
 class QEImage
 {
   // App Logos
-   static const String darkAppLogo = "assets/images/dark_logo.png";
-   static const String lightAppLogo = "assets/images/light_logo.png";
+   static const String darkAppLogo = "assets/images/darklogo.png";
+   static const String lightAppLogo = "assets/images/lightlogo.png";
 
   // Onboarding Screen Logos
    static const String onboardingScreen1 = "assets/images/ob1.png";

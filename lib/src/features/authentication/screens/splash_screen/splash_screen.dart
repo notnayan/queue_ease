@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:queue_ease/src/features/authentication/screens/onboarding_screen/onboarding_screen.dart';
+import 'package:get/get.dart';
+import 'package:queue_ease/src/features/authentication/controllers/splash_controller.dart';
 import 'package:queue_ease/src/features/authentication/screens/splash_screen/widgets/splash_bottom.dart';
 import 'package:queue_ease/src/features/authentication/screens/splash_screen/widgets/splash_heading.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+  SplashScreen({super.key});
+
+  final splashController = Get.put(SplashController());
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const OnboardingScreen(),
-        ),
-      );
-    });
+    splashController.endSplash();
 
     return const Scaffold(
       body: Padding(
@@ -25,7 +22,7 @@ class SplashScreen extends StatelessWidget {
             Spacer(),
             SplashHeading(),
             Spacer(),
-            SplashBottom()
+            SplashBottom(),
           ],
         ),
       ),
