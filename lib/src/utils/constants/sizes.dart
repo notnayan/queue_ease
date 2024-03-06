@@ -1,5 +1,6 @@
-class QESizes {
+import 'package:flutter/material.dart';
 
+class QESizes {
   // Padding and margin sizes
   static const double xs = 4.0;
   static const double sm = 8.0;
@@ -25,6 +26,14 @@ class QESizes {
 
   // AppBar height
   static const double appBarHeight = 56.0;
+
+  // Custom Size
+  static const EdgeInsetsGeometry paddingWithAppBarHeight = EdgeInsets.only(
+    top: QESizes.appBarHeight,
+    bottom: QESizes.defaultSpace,
+    left: QESizes.defaultSpace,
+    right: QESizes.defaultSpace,
+  );
 
   // Default spacing between sections
   static const double defaultSpace = 24.0;

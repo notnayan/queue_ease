@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:queue_ease/src/features/authentication/controllers/splash_controller.dart';
-import 'package:queue_ease/src/features/authentication/screens/splash_screen/splash.widgets/splash_bottom.dart';
-import 'package:queue_ease/src/features/authentication/screens/splash_screen/splash.widgets/splash_heading.dart';
+import 'package:queue_ease/src/features/authentication/screens/splash/splash.widgets/splash_bottom.dart';
+import 'package:queue_ease/src/features/authentication/screens/splash/splash.widgets/splash_heading.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 
 class SplashScreen extends StatelessWidget {
