@@ -40,4 +40,9 @@ class QETexts {
   static const String loginSubTitle = "Your Time, Your Space: Queue with Ease!";
   static const String signupTitle = "Let's create your account";
 
+  // Profile Screen Text
+  static const String save = "Save";
+  static const String city = "City";
+  static const String logOut = "Log Out";
+
 }

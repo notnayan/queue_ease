@@ -8,4 +8,7 @@ class QEImage
    static const String onboardingScreen1 = "assets/images/ob1.png";
    static const String onboardingScreen2 = "assets/images/ob2.png";
    static const String onboardingScreen3 = "assets/images/ob3.png";
+
+   // Profile Screen
+   static const String profileImage = "assets/images/headshot.png";
 }
