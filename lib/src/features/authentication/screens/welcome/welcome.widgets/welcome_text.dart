@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
@@ -13,7 +14,7 @@ class WelcomeText extends StatelessWidget {
       children: [
         Text(
           QETexts.welcomeTitle,
-          style: Theme.of(context).textTheme.headlineLarge,
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: QEColors.primary),
         ),
         const SizedBox(
           height: QESizes.spaceBtwItems,

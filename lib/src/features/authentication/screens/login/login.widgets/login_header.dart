@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
@@ -21,14 +22,14 @@ class LoginHeader extends StatelessWidget {
         ),
         Text(
           QETexts.loginTitle,
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: QEColors.primary),
         ),
         const SizedBox(
           height: QESizes.sm,
         ),
         Text(
           QETexts.loginSubTitle,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: QEColors.accent),
         ),
       ],
     );

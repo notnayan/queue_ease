@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "X:/Dev/projects/queue_ease/linux"
+    "cmake.sourceDirectory": "X:/Dev/projects/queue_ease/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

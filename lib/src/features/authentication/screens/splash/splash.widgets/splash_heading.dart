@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
 class SplashHeading extends StatelessWidget {
@@ -13,7 +14,7 @@ class SplashHeading extends StatelessWidget {
         angle: -0.25,
         child: Text(
           QETexts.appSlogan,
-          style: Theme.of(context).textTheme.headlineLarge,
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: QEColors.primary),
           textAlign: TextAlign.center,
         ),
       ),

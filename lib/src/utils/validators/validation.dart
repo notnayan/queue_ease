@@ -1,5 +1,4 @@
 class QEValidator {
-
   // Email validator
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

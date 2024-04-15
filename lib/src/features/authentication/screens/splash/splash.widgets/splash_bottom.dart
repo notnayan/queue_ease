@@ -21,11 +21,11 @@ class SplashBottom extends StatelessWidget {
         Container(
           height: 75,
           width: 10,
-          color: dark ? QEColors.white : QEColors.black,
+          color: QEColors.primary
         ),
         Text(
           QETexts.appName,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyLarge
         )
       ],
     );

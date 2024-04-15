@@ -5,7 +5,7 @@ class SplashController extends GetxController {
   static SplashController get instance => Get.find();
 
   Future endSplash() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 5));
     Get.to(const OnboardingScreen());
   }
 }

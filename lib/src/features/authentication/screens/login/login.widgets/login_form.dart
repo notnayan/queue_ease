@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:queue_ease/src/features/authentication/screens/signup/signup_screen.dart';
+import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
@@ -43,7 +43,9 @@ class LoginForm extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(() => const HomeScreen());
+                },
                 child: const Text(QETexts.logIn),
               ),
             ),

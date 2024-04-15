@@ -15,7 +15,7 @@ class OnboardingNext extends StatelessWidget {
 
     return Positioned(
       right: QESizes.defaultSpace,
-      bottom: kBottomNavigationBarHeight,
+      bottom: kBottomNavigationBarHeight + 25,
       child: ElevatedButton(
         onPressed: () => OnBoardingController.instance.nextPage(),
         style: ElevatedButton.styleFrom(

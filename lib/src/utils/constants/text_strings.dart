@@ -3,6 +3,8 @@ class QETexts {
   static const String appName = "QueueEase";
   static const String appSlogan = "Let us Queue\nWhile you pursue!";
 
+  static const String settings = "Settings";
+
   //Onboarding Texts
   static const String onBoardingTitle1 = "Welcome to QueueEase";
   static const String onBoardingTitle2 = "How It Works";
@@ -38,11 +40,18 @@ class QETexts {
   // Authentication Heading Text
   static const String loginTitle = "Welcome back,";
   static const String loginSubTitle = "Your Time, Your Space: Queue with Ease!";
-  static const String signupTitle = "Let's create your account";
+  static const String signupTitle1 = "REGISTER";
+  static const String signupTitle2 = "Create your account";
 
   // Profile Screen Text
   static const String save = "Save";
   static const String city = "City";
   static const String logOut = "Log Out";
 
+  // Home Screen Text
+  static const String to = "To";
+  static const String fare = "Fare";
+
+  static const String GOOGLE_MAPS_API_KEY =
+      "AIzaSyDrkYuLFdER2RPgZvbRHlw8BFZkLEdbpfw";
 }

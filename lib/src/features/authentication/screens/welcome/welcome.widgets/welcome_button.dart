@@ -16,7 +16,7 @@ class WelcomeButton extends StatelessWidget {
         Expanded(
           child: OutlinedButton(
             onPressed: () {
-              Get.to(const LoginScreen());
+              Get.to(() => const LoginScreen());
             },
             child: const Text("LOGIN"),
           ),
@@ -27,7 +27,7 @@ class WelcomeButton extends StatelessWidget {
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              Get.to(const SignupScreen());
+              Get.to(() => const SignupScreen());
             },
             child: const Text("SIGNUP"),
           ),

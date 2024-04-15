@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -18,14 +19,24 @@ class OnboardingPage extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(
-            height: 100,
+            height: kToolbarHeight,
           ),
-          Image(
-            image: AssetImage(image),
+          Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: QEColors.accent,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Image(
+              image: AssetImage(image),
+            ),
+          ),
+          const SizedBox(
+            height: QESizes.spaceBtwSections,
           ),
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: QEColors.primary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(
@@ -33,7 +44,7 @@ class OnboardingPage extends StatelessWidget {
           ),
           Text(
             subtitle,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           )
         ],
