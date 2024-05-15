@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class QEHttpHelper {
   static const String _baseURL =
-      'https://your-api-base-url.com'; // Replcase with your API base URL
+      'http://192.168.254.93:8000'; // Replcase with your API base URL
 
   // Helper method to make a GET request
   static Future<Map<String, dynamic>> get(String endpoint) async {
@@ -12,15 +12,20 @@ class QEHttpHelper {
   }
 
   // Helper method to make a POST request
-  static Future<Map<String, dynamic>> post(
-      String endpoint, dynamic data) async {
-    final response = await http.post(
-      Uri.parse('$_baseURL/$endpoint'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(data),
-    );
-    return _handleResponse(response);
+static Future<Map<String, dynamic>> post(
+    String endpoint, dynamic data) async {
+  final response = await http.post(
+    Uri.parse('$_baseURL/$endpoint'),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode(data),
+  );
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Failed to load data: ${response.statusCode}');
   }
+}
 
   // Helper method to make a PUT request
   static Future<Map<String, dynamic>> put(String endpoint, dynamic data) async {

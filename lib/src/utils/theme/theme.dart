@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/theme/custom_themes/appbar_theme.dart';
 import 'package:queue_ease/src/utils/theme/custom_themes/bottom_sheet_theme.dart';
 import 'package:queue_ease/src/utils/theme/custom_themes/elevated_button_theme.dart';
@@ -15,7 +16,7 @@ class QEAppTheme {
     brightness: Brightness.light,
     primaryColor: Colors.blue,
     textTheme: QETextTheme.lightTextTheme,
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: QEColors.light,
     appBarTheme: QEAppBarTheme.lightAppBarTheme,
     bottomSheetTheme: QEBottomSheetTheme.lightBottomSheetTheme,
     elevatedButtonTheme: QEElevatedButtonTheme.lightElevatedButtonTheme,
@@ -29,7 +30,7 @@ class QEAppTheme {
     brightness: Brightness.dark,
     primaryColor: Colors.blue,
     textTheme: QETextTheme.darkTextTheme,
-    scaffoldBackgroundColor: Colors.black,
+    scaffoldBackgroundColor: QEColors.dark,
     appBarTheme: QEAppBarTheme.darkAppBarTheme,
     bottomSheetTheme: QEBottomSheetTheme.darkBottomSheetTheme,
     elevatedButtonTheme: QEElevatedButtonTheme.darkElevatedButtonTheme,

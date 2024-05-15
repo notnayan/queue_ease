@@ -1,4 +1,19 @@
 class QEValidator {
+  
+    // First Name validator
+  static String? validateFirstName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'First Name is required.';
+    }
+    return null;
+  }
+    // Last Name validator
+  static String? validateLastName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Last Name is required.';
+    }
+    return null;
+  }
   // Email validator
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

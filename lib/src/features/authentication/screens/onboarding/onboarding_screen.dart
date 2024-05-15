@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:queue_ease/src/features/authentication/controllers/onboarding_controller.dart';
 import 'package:queue_ease/src/features/authentication/screens/onboarding/onboarding.widgets/onboarding_navigation.dart';
 import 'package:queue_ease/src/features/authentication/screens/onboarding/onboarding.widgets/onboarding_next.dart';
@@ -8,8 +9,20 @@ import 'package:queue_ease/src/features/authentication/screens/onboarding/onboar
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    var box = Hive.box('userData');
+    box.put("isFirstTime", false);
+  }
 
   @override
   Widget build(BuildContext context) {

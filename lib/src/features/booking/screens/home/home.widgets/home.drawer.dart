@@ -1,30 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/features/common/settings_screen.dart';
 import 'package:queue_ease/src/features/authentication/screens/profile/profile_screen.dart';
 import 'package:queue_ease/src/features/verification/screens/agent.registration.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
+import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({super.key});
+  final token;
+  const MyDrawer({super.key, @required this.token});
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
 }
 
 class _MyDrawerState extends State<MyDrawer> {
+  late String email;
+  late String token;
+  late String firstName;
+  bool isAgent = false;
+
   Future<void> makePhoneCall(String phoneQE) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneQE);
     await launchUrl(launchUri);
   }
 
   @override
+  void initState() {
+    super.initState();
+    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    email = jwtDecodedToken['email'];
+    firstName = jwtDecodedToken['firstName'];
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: QEColors.accent,
+        color: QEColors.dark,
         child: ListView(
           children: [
             DrawerHeader(
@@ -34,11 +50,11 @@ class _MyDrawerState extends State<MyDrawer> {
                 decoration: const BoxDecoration(
                   color: QEColors.primary,
                 ),
-                accountName: const Text(
-                  "N A Y A N",
+                accountName: Text(
+                  firstName,
                 ),
-                accountEmail: const Text(
-                  "nayanrajkhanalz@gmail.com",
+                accountEmail: Text(
+                  email,
                 ),
                 currentAccountPicture: Container(
                   decoration: BoxDecoration(
@@ -46,7 +62,7 @@ class _MyDrawerState extends State<MyDrawer> {
                     border: Border.all(color: QEColors.accent, width: 2),
                   ),
                   child: const CircleAvatar(
-                    backgroundImage: AssetImage("assets/images/headshot.png"),
+                    backgroundImage: NetworkImage(QEImage.profileImage),
                   ),
                 ),
               ),
@@ -57,7 +73,7 @@ class _MyDrawerState extends State<MyDrawer> {
             // LISTTILES
             ListTile(
               onTap: () {
-                Get.to(const ProfileScreen());
+                Get.to(ProfileScreen(token: widget.token));
               },
               leading: const Icon(
                 CupertinoIcons.person_fill,
@@ -71,7 +87,9 @@ class _MyDrawerState extends State<MyDrawer> {
             ),
             ListTile(
               onTap: () {
-                Get.to(const SettingsScreen());
+                Get.to(SettingsScreen(
+                  token: widget.token,
+                ));
               },
               leading: const Icon(
                 CupertinoIcons.settings,

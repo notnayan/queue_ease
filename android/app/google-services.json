@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "559621338137",
+    "project_id": "braided-hangout-419516",
+    "storage_bucket": "braided-hangout-419516.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559621338137:android:8e24b6643ac625f5b26688",
+        "android_client_info": {
+          "package_name": "com.example.queue_ease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLMB620vKmsvg3KVGK1kAiCIRG2KVZ7X0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

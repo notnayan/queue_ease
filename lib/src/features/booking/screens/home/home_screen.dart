@@ -2,16 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.drawer.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.googlemaps.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home_dropdownbox.dart';
+import 'package:queue_ease/src/features/chat/screens/chat_screen.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final token;
+  const HomeScreen({Key? key, @required this.token}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -19,11 +24,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _currentAddress = '';
+  String referenceId = "";
+  late String email;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    Map<String,dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    email = jwtDecodedToken['email'];
   }
 
   Future<void> _getCurrentLocation() async {
@@ -33,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
         status = await Permission.location.request();
         if (status.isDenied) {
           print('Location permission was denied.');
-          return; 
+          return;
         }
       }
       Position position = await Geolocator.getCurrentPosition(
@@ -43,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Placemark place = placemarks[0];
       setState(() {
         _currentAddress =
-            "${place.name}, ${place.subLocality}, ${place.locality}, ${place.country}";
+            "${place.name}, ${place.subLocality}, ${place.locality}";
       });
     } catch (e) {
       print(e);
@@ -54,10 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("QueueEase"),
+        title: const Text(QETexts.appName),
         elevation: 0,
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(token: widget.token),
       body: Stack(
         children: [
           Positioned(
@@ -93,16 +102,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Icon(CupertinoIcons.location_solid),
                           const SizedBox(width: QESizes.xs),
-                          Text(
-                            _currentAddress.isNotEmpty
-                                ? _currentAddress
-                                : "Fetching location...",
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.white),
+                          Expanded(
+                            child: Text(
+                              _currentAddress.isNotEmpty
+                                  ? _currentAddress
+                                  : "Fetching location...",
+                              style: Theme.of(context).textTheme.titleMedium,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: QESizes.spaceBtwInputFields),
+                      const SizedBox(height: QESizes.spaceBtwSections),
                       const HomeDropDownMenu(),
                       const SizedBox(height: QESizes.spaceBtwInputFields),
                       TextFormField(
@@ -122,7 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: QEColors.accent,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Get.to(const ChatPage());
+                                },
                                 child: Text(
                                   "Find an Agent",
                                   style: Theme.of(context).textTheme.titleLarge,
@@ -132,15 +146,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(
                               width: QESizes.spaceBtwInputFields,
                             ),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: const BoxDecoration(
-                                color: QEColors.accent,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.text_bubble,
+                            InkWell(
+                              onTap: () {
+                                payWithKhaltiInApp();
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  color: QEColors.accent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.text_bubble,
+                                ),
                               ),
                             )
                           ],
@@ -155,5 +174,54 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  payWithKhaltiInApp() {
+    KhaltiScope.of(context).pay(
+      config: PaymentConfig(
+        amount: 1000,
+        productIdentity: 'Product Id',
+        productName: 'Product Name',
+        mobileReadOnly: false,
+      ),
+      preferences: [
+        PaymentPreference.khalti,
+      ],
+      onSuccess: onSuccess,
+      onFailure: onFailure,
+      onCancel: onCancel,
+    );
+  }
+
+  void onSuccess(PaymentSuccessModel success) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Payment Successful'),
+          actions: [
+            SimpleDialogOption(
+                child: const Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    referenceId = success.idx;
+                  });
+
+                  Navigator.pop(context);
+                })
+          ],
+        );
+      },
+    );
+  }
+
+  void onFailure(PaymentFailureModel failure) {
+    debugPrint(
+      failure.toString(),
+    );
+  }
+
+  void onCancel() {
+    debugPrint('Cancelled');
   }
 }

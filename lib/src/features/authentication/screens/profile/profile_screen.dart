@@ -1,12 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
-import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  final token;
+  const ProfileScreen({super.key, @required this.token});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late String firstName;
+  late String lastName;
+  late String email;
+  late String phoneNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    email = jwtDecodedToken['email'];
+    firstName = jwtDecodedToken['firstName'];
+    lastName = jwtDecodedToken['lastName'];
+    phoneNumber = jwtDecodedToken['phoneNumber'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
                     height: 120,
                     child: ClipOval(
                       child: Image(
-                        image: AssetImage(QEImage.profileImage),
+                        image: NetworkImage(QEImage.profileImage),
                       ),
                     ),
                   ),
@@ -57,9 +78,9 @@ class ProfileScreen extends StatelessWidget {
                   child: TextFormField(
                     enabled: false,
                     expands: false,
-                    decoration: const InputDecoration(
-                        labelText: QETexts.firstName,
-                        prefixIcon: Icon(CupertinoIcons.person)),
+                    decoration: InputDecoration(
+                        labelText: firstName,
+                        prefixIcon: const Icon(CupertinoIcons.person)),
                   ),
                 ),
                 const SizedBox(
@@ -69,9 +90,9 @@ class ProfileScreen extends StatelessWidget {
                   child: TextFormField(
                     enabled: false,
                     expands: false,
-                    decoration: const InputDecoration(
-                        labelText: QETexts.lastName,
-                        prefixIcon: Icon(CupertinoIcons.person)),
+                    decoration: InputDecoration(
+                        labelText: lastName,
+                        prefixIcon: const Icon(CupertinoIcons.person)),
                   ),
                 ),
               ],
@@ -81,18 +102,27 @@ class ProfileScreen extends StatelessWidget {
             ),
             TextFormField(
               enabled: false,
-              decoration: const InputDecoration(
-                  labelText: QETexts.email,
-                  prefixIcon: Icon(CupertinoIcons.mail)),
+              decoration: InputDecoration(
+                  labelText: email,
+                  prefixIcon: const Icon(CupertinoIcons.mail)),
             ),
             const SizedBox(
               height: QESizes.spaceBtwSections,
             ),
             TextFormField(
               enabled: false,
-              decoration: const InputDecoration(
-                  labelText: QETexts.phoneNm,
-                  prefixIcon: Icon(CupertinoIcons.phone)),
+              decoration: InputDecoration(
+                  labelText: phoneNumber,
+                  prefixIcon: const Icon(CupertinoIcons.phone)),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(CupertinoIcons.trash),
+                label: const Text("DELETE ACCOUNT"),
+              ),
             ),
           ],
         ),

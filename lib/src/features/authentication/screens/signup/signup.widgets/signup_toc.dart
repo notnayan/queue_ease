@@ -1,12 +1,35 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class SignupTOC extends StatelessWidget {
+class SignupTOC extends StatefulWidget {
   const SignupTOC({
     super.key,
   });
+
+  @override
+  State<SignupTOC> createState() => _SignupTOCState();
+}
+
+class _SignupTOCState extends State<SignupTOC> {
+  bool isChecked = false;
+  final Uri urlPP = Uri.parse('https://policies.google.com/privacy?hl=en-US');
+  final Uri urlTOU = Uri.parse('https://policies.google.com/terms?hl=en-US');
+
+  Future<void> launchPPUrl() async {
+    if (!await launchUrl(urlPP)) {
+      throw Exception('Could not launch $urlPP');
+    }
+  }
+
+  Future<void> launchTOUUrl() async {
+    if (!await launchUrl(urlTOU)) {
+      throw Exception('Could not launch $urlTOU');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +40,14 @@ class SignupTOC extends StatelessWidget {
         SizedBox(
           width: 20,
           height: 20,
-          child: Checkbox(value: true, onChanged: (value) {}),
+          child: Checkbox(
+            value: isChecked,
+            onChanged: (value) {
+              setState(() {
+                isChecked = value!;
+              });
+            },
+          ),
         ),
         const SizedBox(
           width: QESizes.spaceBtwItems,
@@ -35,6 +65,10 @@ class SignupTOC extends StatelessWidget {
                       decoration: TextDecoration.underline,
                       decorationColor: dark ? QEColors.white : QEColors.primary,
                     ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launchPPUrl();
+                  },
               ),
               TextSpan(
                   text: '${QETexts.and} ',
@@ -46,6 +80,10 @@ class SignupTOC extends StatelessWidget {
                       decoration: TextDecoration.underline,
                       decorationColor: dark ? QEColors.white : QEColors.primary,
                     ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launchTOUUrl();
+                  },
               ),
             ],
           ),

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:queue_ease/src/features/authentication/screens/profile/profile_screen.dart';
+import 'package:queue_ease/src/features/authentication/screens/welcome/welcome_screen.dart';
 import 'package:queue_ease/src/features/common/about_screen.dart';
 import 'package:queue_ease/src/features/common/change_password_screen.dart';
 import 'package:queue_ease/src/features/common/help_screen.dart';
@@ -9,11 +11,30 @@ import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  final token;
+  const SettingsScreen({super.key, @required this.token});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  late String token;
+
 
   @override
   Widget build(BuildContext context) {
+
+  @override
+  void logoutUser() async {
+    // Clear data stored in the Hive box
+    var box = await Hive.openBox('localData');
+    await box.clear();
+
+    // Redirect user to the welcome screen
+    Get.offAll(const WelcomeScreen());
+  }
     return Scaffold(
       appBar: AppBar(
         title: const Text(QETexts.settings),
@@ -46,7 +67,7 @@ class SettingsScreen extends StatelessWidget {
 
               //Item1
               InkWell(
-                onTap: () => Get.to(const ProfileScreen()),
+                onTap: () => Get.to(ProfileScreen(token: widget.token)),
                 child: Row(
                   children: [
                     Container(
@@ -210,22 +231,47 @@ class SettingsScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CupertinoAlertDialog(
+                            title: const Text(
+                              "LOG OUT",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            content: const Text(
+                              "Are you sure you want to log out?",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: [
+                              MaterialButton(
+                                onPressed: () {
+                                  logoutUser();
+                                },
+                                child: const Text(
+                                  "YES",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              MaterialButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  "NO",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        });
+                    //logoutUser;
+                  },
                   icon: const Icon(Icons.logout),
                   label: const Text("LOG OUT"),
-                ),
-              ),
-
-              const SizedBox(
-                height: QESizes.spaceBtwItems,
-              ),
-
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(CupertinoIcons.trash),
-                  label: const Text("DELETE ACCOUNT"),
                 ),
               ),
             ],
