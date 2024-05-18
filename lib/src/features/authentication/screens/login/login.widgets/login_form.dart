@@ -41,8 +41,11 @@ class _LoginFormState extends State<LoginForm> {
         final response = await QEHttpHelper.post('login', data);
         if (response['status']) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login successful'),
+            SnackBar(
+              content: Text(
+                'Login successful',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               backgroundColor: QEColors.success,
             ),
           );
@@ -54,15 +57,20 @@ class _LoginFormState extends State<LoginForm> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                  response['error'] ?? 'Login failed. Please try again later.'),
+                response['error'] ?? 'Login failed. Please try again later.',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               backgroundColor: Colors.red,
             ),
           );
         }
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login failed. Please try again later.'),
+          SnackBar(
+            content: Text(
+              'Login failed. Please try again later.',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             backgroundColor: Colors.red,
           ),
         );

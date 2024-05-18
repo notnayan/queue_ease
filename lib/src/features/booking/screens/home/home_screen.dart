@@ -4,7 +4,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.drawer.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.googlemaps.dart';
@@ -24,14 +23,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _currentAddress = '';
-  String referenceId = "";
   late String email;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
-    Map<String,dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
     email = jwtDecodedToken['email'];
   }
 
@@ -135,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   backgroundColor: QEColors.accent,
                                 ),
                                 onPressed: () {
-                                  Get.to(const ChatPage());
+                                  Get.to(ChatPage(
+                                    token: widget.token,
+                                  ));
                                 },
                                 child: Text(
                                   "Find an Agent",
@@ -143,25 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(
-                              width: QESizes.spaceBtwInputFields,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                payWithKhaltiInApp();
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  color: QEColors.accent,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.text_bubble,
-                                ),
-                              ),
-                            )
                           ],
                         ),
                       )
@@ -174,54 +155,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }
-
-  payWithKhaltiInApp() {
-    KhaltiScope.of(context).pay(
-      config: PaymentConfig(
-        amount: 1000,
-        productIdentity: 'Product Id',
-        productName: 'Product Name',
-        mobileReadOnly: false,
-      ),
-      preferences: [
-        PaymentPreference.khalti,
-      ],
-      onSuccess: onSuccess,
-      onFailure: onFailure,
-      onCancel: onCancel,
-    );
-  }
-
-  void onSuccess(PaymentSuccessModel success) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Payment Successful'),
-          actions: [
-            SimpleDialogOption(
-                child: const Text('OK'),
-                onPressed: () {
-                  setState(() {
-                    referenceId = success.idx;
-                  });
-
-                  Navigator.pop(context);
-                })
-          ],
-        );
-      },
-    );
-  }
-
-  void onFailure(PaymentFailureModel failure) {
-    debugPrint(
-      failure.toString(),
-    );
-  }
-
-  void onCancel() {
-    debugPrint('Cancelled');
   }
 }

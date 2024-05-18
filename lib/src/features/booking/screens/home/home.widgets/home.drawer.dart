@@ -5,8 +5,10 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/features/common/settings_screen.dart';
 import 'package:queue_ease/src/features/authentication/screens/profile/profile_screen.dart';
 import 'package:queue_ease/src/features/verification/screens/agent.registration.dart';
+import 'package:queue_ease/src/features/verification/screens/agent_dashboard.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
+import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyDrawer extends StatefulWidget {
@@ -115,57 +117,70 @@ class _MyDrawerState extends State<MyDrawer> {
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-            const SizedBox(
-              height: 200,
-            ),
             ListTile(
               onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return CupertinoAlertDialog(
-                        title: const Text(
-                          "AGENT MODE",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        content: const Text(
-                          "Are you sure you want to switch?",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        actions: [
-                          MaterialButton(
-                            onPressed: () {
-                              Get.to(const AgentRegistration());
-                            },
-                            child: const Text(
-                              "YES",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          MaterialButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              "NO",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    });
+                Get.to(AgentDashboard(token: widget.token,));
               },
               leading: const Icon(
-                Icons.logout,
+                CupertinoIcons.clock,
                 color: Colors.white,
               ),
               title: const Text(
-                "AGENT MODE",
+                "R E Q U E S T S",
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
+            ),
+            const SizedBox(
+              height: 150,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(QESizes.buttonRadius),
+              child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CupertinoAlertDialog(
+                            title: const Text(
+                              "AGENT MODE",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            content: const Text(
+                              "Do you want to become an agent?",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            actions: [
+                              MaterialButton(
+                                onPressed: () {
+                                  Get.to(AgentRegistration(
+                                    token: widget.token,
+                                  ));
+                                },
+                                child: const Text(
+                                  "YES",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              MaterialButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  "NO",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(QESizes.iconMd),
+                  ),
+                  child: const Text("AGENT MODE")),
             )
           ],
         ),

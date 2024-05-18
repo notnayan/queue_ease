@@ -1,21 +1,43 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:queue_ease/src/features/verification/screens/agent_dashboard.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
+import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
-import 'package:queue_ease/src/utils/constants/text_strings.dart';
 
-class AgentRegistration extends StatelessWidget {
-  const AgentRegistration({Key? key}) : super(key: key);
+class AgentRegistration extends StatefulWidget {
+  final token;
+  const AgentRegistration({Key? key, @required this.token}) : super(key: key);
+
+  @override
+  State<AgentRegistration> createState() => _AgentRegistrationState();
+}
+
+class _AgentRegistrationState extends State<AgentRegistration> {
+  late String firstName;
+  late String lastName;
+  late String email;
+  late String phoneNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    email = jwtDecodedToken['email'];
+    firstName = jwtDecodedToken['firstName'];
+    lastName = jwtDecodedToken['lastName'];
+    phoneNumber = jwtDecodedToken['phoneNumber'];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Center(
               child: ClipOval(
@@ -26,114 +48,85 @@ class AgentRegistration extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              height: QESizes.spaceBtwItems,
-            ),
-            OutlinedButton(
-              onPressed: () {},
-              child: const Text("Add A Photo"),
-            ),
-            const SizedBox(
-              height: QESizes.spaceBtwSections,
-            ),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
+                    enabled: false,
                     expands: false,
-                    decoration: const InputDecoration(
-                      labelText: QETexts.firstName,
-                      prefixIcon: Icon(CupertinoIcons.person),
-                    ),
+                    decoration: InputDecoration(
+                        labelText: firstName,
+                        prefixIcon: const Icon(CupertinoIcons.person)),
                   ),
                 ),
                 const SizedBox(
-                  width: QESizes.spaceBtwInputFields,
+                  width: QESizes.spaceBtwItems,
                 ),
                 Expanded(
                   child: TextFormField(
+                    enabled: false,
                     expands: false,
-                    decoration: const InputDecoration(
-                      labelText: QETexts.lastName,
-                      prefixIcon: Icon(CupertinoIcons.person),
-                    ),
+                    decoration: InputDecoration(
+                        labelText: lastName,
+                        prefixIcon: const Icon(CupertinoIcons.person)),
                   ),
                 ),
               ],
             ),
-            const SizedBox(
-              height: QESizes.spaceBtwInputFields,
+            TextFormField(
+              enabled: false,
+              decoration: InputDecoration(
+                  labelText: email,
+                  prefixIcon: const Icon(CupertinoIcons.mail)),
             ),
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: QETexts.email,
-                prefixIcon: Icon(CupertinoIcons.mail),
-              ),
-            ),
-            const SizedBox(
-              height: QESizes.spaceBtwInputFields,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: QETexts.phoneNm,
-                prefixIcon: Icon(CupertinoIcons.phone),
-              ),
-            ),
-            const SizedBox(
-              height: QESizes.spaceBtwInputFields,
+              enabled: false,
+              decoration: InputDecoration(
+                  labelText: phoneNumber,
+                  prefixIcon: const Icon(CupertinoIcons.phone)),
             ),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
-                    child: const Column(
+                    onPressed: () {
+                      //TODO: Document code
+                    },
+                    child: const Row(
                       children: [
-                        Text("Upload Document"),
-                        SizedBox(
-                          height: 8,
-                        ),
                         Icon(CupertinoIcons.doc),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Text("DOCUMENT ↑↑"),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(
-                  width: QESizes.spaceBtwInputFields,
-                ),
+                const SizedBox(width: QESizes.spaceBtwItems),
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    child: const Column(
-                      children: [
-                        Text("Upload Description"),
-                        SizedBox(
-                          height: 8,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Your record has been submitted!',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          backgroundColor: QEColors.success,
                         ),
-                        Icon(CupertinoIcons.text_bubble),
-                      ],
-                    ),
+                      );
+                      Get.to(HomeScreen(
+                        token: widget.token,
+                      ));
+                    },
+                    child: const Text("DONE"),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(
-              height: QESizes.spaceBtwInputFields,
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.to(const AgentDashboard());
-                },
-                child: const Text("DONE"),
-              ),
-            ),
-            const SizedBox(
-              height: QESizes.spaceBtwInputFields,
             ),
             const Text(
-              "By tapping <<Done>> I agree with Terms and Conditions, I acknowledge and agree with processing and transfer of personal data according to the conditions of Privacy Policy.",
+              "By tapping <DONE> I agree with Terms and Conditions, I acknowledge and agree with processing and transfer of personal data according to the conditions of Privacy Policy!",
               textAlign: TextAlign.justify,
             )
           ],

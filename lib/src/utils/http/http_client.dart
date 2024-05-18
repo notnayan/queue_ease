@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class QEHttpHelper {
   static const String _baseURL =
-      'http://192.168.254.93:8000'; // Replcase with your API base URL
+      'http://192.168.254.92:8000'; // Replcase with your API base URL
 
   // Helper method to make a GET request
   static Future<Map<String, dynamic>> get(String endpoint) async {

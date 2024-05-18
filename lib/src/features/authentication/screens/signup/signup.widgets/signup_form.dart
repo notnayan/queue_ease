@@ -74,8 +74,11 @@ class _SignupFormState extends State<SignupForm> {
           phoneNoController.clear();
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Signup successful'),
+          SnackBar(
+            content: Text(
+              'Signup successful',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             backgroundColor: QEColors.success,
           ),
         );
