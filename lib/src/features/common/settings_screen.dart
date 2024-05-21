@@ -22,19 +22,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late String token;
 
-
   @override
   Widget build(BuildContext context) {
-
-  @override
-  void logoutUser() async {
-    // Clear data stored in the Hive box
-    var box = await Hive.openBox('localData');
-    await box.clear();
-
-    // Redirect user to the welcome screen
-    Get.offAll(const WelcomeScreen());
-  }
     return Scaffold(
       appBar: AppBar(
         title: const Text(QETexts.settings),
@@ -223,55 +212,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: QEColors.white,
                     ),
                   ],
-                ),
-              ),
-
-              const Spacer(),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoAlertDialog(
-                            title: const Text(
-                              "LOG OUT",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            content: const Text(
-                              "Are you sure you want to log out?",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            actions: [
-                              MaterialButton(
-                                onPressed: () {
-                                  logoutUser();
-                                },
-                                child: const Text(
-                                  "YES",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              MaterialButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text(
-                                  "NO",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        });
-                    //logoutUser;
-                  },
-                  icon: const Icon(Icons.logout),
-                  label: const Text("LOG OUT"),
                 ),
               ),
             ],

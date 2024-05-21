@@ -1,22 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:hive/hive.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
+import 'package:queue_ease/src/utils/http/http_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatPage extends StatefulWidget {
-  final token;
-  const ChatPage({super.key, @required this.token});
+  final String receiverId;
+  final String name;
+  final String phoneNumber;
+  const ChatPage(
+      {super.key,
+      required this.receiverId,
+      required this.name,
+      required this.phoneNumber});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  late String firstName;
   String referenceId = "";
+  bool loading = true;
+  final TextEditingController _messageController = TextEditingController();
+  final List<String> _messages = [];
+  final List<bool> _isUserMessage = []; 
 
   // Phone call to agent or user number
   Future<void> makePhoneCall(String phoneQE) async {
@@ -27,70 +37,79 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
-    firstName = jwtDecodedToken['firstName'];
+    connectToSocket();
+  }
+
+  Future<void> connectToSocket() async {
+    final chatId = await QEHttpHelper.post('chat/${widget.receiverId}', {
+      'userId': Hive.box('user').get('user')['_id'],
+    });
+
+    print(chatId);
+
+    // SocketService().listen(chatId, (data) => null);
+  }
+
+  payWithKhaltiInApp() {
+    KhaltiScope.of(context).pay(
+      config: PaymentConfig(
+        amount: 150000,
+        productIdentity: 'Product Id',
+        productName: 'Product Name',
+        mobileReadOnly: false,
+      ),
+      preferences: [
+        PaymentPreference.khalti,
+      ],
+      onSuccess: onSuccess,
+      onFailure: onFailure,
+      onCancel: onCancel,
+    );
+  }
+
+  void onSuccess(PaymentSuccessModel success) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Payment Successful'),
+          actions: [
+            SimpleDialogOption(
+                child: const Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    referenceId = success.idx;
+                  });
+                  Navigator.pop(context);
+                })
+          ],
+        );
+      },
+    );
+  }
+
+  void onFailure(PaymentFailureModel failure) {
+    debugPrint(
+      failure.toString(),
+    );
+  }
+
+  void onCancel() {
+    debugPrint('Cancelled');
+  }
+
+  void _sendMessage() {
+    if (_messageController.text.isNotEmpty) {
+      setState(() {
+        _messages.add(_messageController.text);
+        _isUserMessage.add(true); // Assuming the current user sent this message
+        _messageController.clear();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildCustomContainer() {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: QEColors.primary,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Text(
-                "SERVICE COMPLETED",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(
-              height: QESizes.defaultSpace,
-            ),
-            const Text(
-              "The service has ended. Please proceed with the payment option. If you have any complains please click the contact button.",
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: QESizes.defaultSpace),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
-                      backgroundColor: Colors.deepPurple,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20)))),
-                  onPressed: () => payWithKhaltiInApp,
-                  child: const Text(
-                    "KHALTI",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
-                      backgroundColor: QEColors.success,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20)))),
-                  onPressed: () => makePhoneCall('9804302504'),
-                  child: const Text(
-                    "SUPPORT",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -112,7 +131,8 @@ class _ChatPageState extends State<ChatPage> {
               ),
               //GET IMAGE
               const CircleAvatar(
-                backgroundImage: AssetImage("assets/images/headshot.png"),
+                backgroundImage: NetworkImage(
+                    "https://media.licdn.com/dms/image/D4D03AQFiNu9ZPWXEaw/profile-displayphoto-shrink_200_200/0/1671113442731?e=1721865600&v=beta&t=JmV1KvHU8vH_543LvXanZKNaN17bA_1MsqMAHCgJ8kU"),
               ),
             ],
           ),
@@ -120,15 +140,14 @@ class _ChatPageState extends State<ChatPage> {
             margin: const EdgeInsets.all(5),
             child: Column(
               children: [
-                Text(firstName, style: Theme.of(context).textTheme.titleLarge)
+                Text(widget.name, style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
           ),
           actions: [
             IconButton(
               onPressed: () {
-                // TODO: Make call to agent or user number
-                makePhoneCall('9804302504');
+                makePhoneCall(widget.phoneNumber);
               },
               icon: const Icon(Icons.call),
             ),
@@ -150,12 +169,90 @@ class _ChatPageState extends State<ChatPage> {
                           MaterialButton(
                             onPressed: () {
                               Navigator.pop(context);
-
-                              // Show the custom container
                               showModalBottomSheet(
                                 context: context,
-                                builder: (context) =>
-                                    _buildCustomContainer(), // Build the container
+                                builder: (context) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: QEColors.primary,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Center(
+                                          child: Text(
+                                            "SERVICE COMPLETED",
+                                            style: TextStyle(
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: QESizes.defaultSpace,
+                                        ),
+                                        const Text(
+                                          "The service has ended. Please proceed with the payment option. If you have any complains please click the support button.",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        const SizedBox(
+                                            height: QESizes.defaultSpace),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(24),
+                                                  backgroundColor:
+                                                      Colors.deepPurple,
+                                                  shape:
+                                                      const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          20)))),
+                                              onPressed: payWithKhaltiInApp,
+                                              child: const Text(
+                                                "KHALTI",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(24),
+                                                  backgroundColor:
+                                                      QEColors.success,
+                                                  shape:
+                                                      const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          20)))),
+                                              onPressed: () =>
+                                                  makePhoneCall('9804302504'),
+                                              child: const Text(
+                                                "SUPPORT",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               );
                             },
                             child: const Text(
@@ -188,16 +285,15 @@ class _ChatPageState extends State<ChatPage> {
         width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
-            ListView(),
             Align(
               alignment: Alignment.bottomCenter,
               child: Row(
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
+                  Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        controller: _messageController,
                         keyboardType: TextInputType.multiline,
                         maxLines: 5,
                         minLines: 1,
@@ -209,9 +305,7 @@ class _ChatPageState extends State<ChatPage> {
                             padding: const EdgeInsets.only(right: 8),
                             child: IconButton(
                               icon: const Icon(CupertinoIcons.paperplane),
-                              onPressed: () {
-                                //TODO: Send message
-                              },
+                              onPressed: _sendMessage,
                             ),
                           ),
                         ),
@@ -225,54 +319,5 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
-  }
-
-  payWithKhaltiInApp() {
-    KhaltiScope.of(context).pay(
-      config: PaymentConfig(
-        amount: 1000,
-        productIdentity: 'Product Id',
-        productName: 'Product Name',
-        mobileReadOnly: false,
-      ),
-      preferences: [
-        PaymentPreference.khalti,
-      ],
-      onSuccess: onSuccess,
-      onFailure: onFailure,
-      onCancel: onCancel,
-    );
-  }
-
-  void onSuccess(PaymentSuccessModel success) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Payment Successful'),
-          actions: [
-            SimpleDialogOption(
-                child: const Text('OK'),
-                onPressed: () {
-                  setState(() {
-                    referenceId = success.idx;
-                  });
-
-                  Navigator.pop(context);
-                })
-          ],
-        );
-      },
-    );
-  }
-
-  void onFailure(PaymentFailureModel failure) {
-    debugPrint(
-      failure.toString(),
-    );
-  }
-
-  void onCancel() {
-    debugPrint('Cancelled');
   }
 }

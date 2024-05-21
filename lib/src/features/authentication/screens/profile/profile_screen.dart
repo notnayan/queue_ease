@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:queue_ease/src/utils/constants/colors.dart';
+import 'package:queue_ease/src/features/authentication/screens/welcome/welcome_screen.dart';
+import 'package:queue_ease/src/features/common/snackbar.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 
@@ -31,6 +34,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    void logoutUser() async {
+      // Clear data stored in the Hive box
+      var box = await Hive.openBox('localData');
+      await box.clear();
+
+      // Redirect user to the welcome screen
+      Get.offAll(const WelcomeScreen());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
@@ -39,34 +51,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(QESizes.defaultSpace),
         child: Column(
           children: [
-            Center(
-              child: Stack(
-                children: [
-                  const SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: ClipOval(
-                      child: Image(
-                        image: NetworkImage(QEImage.profileImage),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: QEColors.primary),
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(CupertinoIcons.pencil_outline),
-                      ),
-                    ),
-                  ),
-                ],
+            const Center(
+              child: SizedBox(
+                width: 120,
+                height: 120,
+                child: ClipOval(
+                  child: Image(
+                      image: AssetImage(QEImage.profileImage),
+                      fit: BoxFit.fill),
+                ),
               ),
             ),
             const SizedBox(
@@ -119,11 +112,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(CupertinoIcons.trash),
-                label: const Text("DELETE ACCOUNT"),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CupertinoAlertDialog(
+                          title: const Text(
+                            "LOG OUT",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          content: const Text(
+                            "Are you sure you want to log out?",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          actions: [
+                            MaterialButton(
+                              onPressed: () {
+                                logoutUser();
+                                SnackBarUtil.showSuccessBar(
+                                    context, "Logged Out Successfully!");
+                              },
+                              child: const Text(
+                                "YES",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "NO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      });
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text("LOG OUT"),
               ),
             ),
+            const SizedBox(
+              height: QESizes.buttonHeight,
+            ),
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: ElevatedButton.icon(
+            //     onPressed: () {},
+            //     icon: const Icon(CupertinoIcons.trash),
+            //     label: const Text("DELETE ACCOUNT"),
+            //   ),
+            // ),
           ],
         ),
       ),

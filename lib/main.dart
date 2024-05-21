@@ -9,14 +9,16 @@ Future<void> main() async {
   await Hive.initFlutter(); // Initializes Hive for Flutter
   await Hive.openBox("localData"); // Opens the Hive box for local data
   await Hive.openBox("userData"); // Opens the Hive box for user data
+  await Hive.openBox('user');
+
   var box = Hive.box('userData'); // Gets the Hive box for local data
   if (box.get("isFirstTime") == null) {
-    box.put("isFirstTime",true); 
+    box.put("isFirstTime", true);
   }
   // Todo: Await Splash
   // Todo: Initialize Database
   // Todo: Initialize Authentication
-  final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

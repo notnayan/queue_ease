@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:queue_ease/src/features/authentication/screens/signup/signup.widgets/signup_form.dart';
+import 'package:queue_ease/src/features/common/snackbar.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
@@ -17,7 +18,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  File? image; 
+  File? image;
   final _picker = ImagePicker();
 
   Future getImage() async {
@@ -31,12 +32,8 @@ class _SignupScreenState extends State<SignupScreen> {
         image = File(pickedFile.path);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No image selected. Please try again later.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      SnackBarUtil.showErrorBar(
+          context, "No image selected. Please try again later.");
     }
   }
 
@@ -74,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                   const SizedBox(
-                    width: QESizes.spaceBtwItems ,
+                    width: QESizes.spaceBtwItems,
                   ),
                   Stack(
                     children: [

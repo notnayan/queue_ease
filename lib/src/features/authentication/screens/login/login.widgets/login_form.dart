@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
@@ -50,8 +51,16 @@ class _LoginFormState extends State<LoginForm> {
             ),
           );
           var myToken = response['token'];
-          var box = await Hive.openBox('localData');
+          Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(myToken);
+          jwtDecodedToken.addAll({'isAgent': response['isAgent']});
+
+          print(jwtDecodedToken);
+          var userBox = Hive.box('user');
+          await userBox.put('user', jwtDecodedToken);
+
+          var box = Hive.box('localData');
           await box.put('token', myToken);
+
           Get.offAll(() => HomeScreen(token: myToken));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -116,9 +125,7 @@ class _LoginFormState extends State<LoginForm> {
               suffixIcon: GestureDetector(
                 onTap: togglePasswordVisibility,
                 child: Icon(
-                  isPasswordVisible
-                      ? CupertinoIcons.eye
-                      : CupertinoIcons.eye_slash,
+                  isPasswordVisible ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
                 ),
               ),
               errorText: passwordError,

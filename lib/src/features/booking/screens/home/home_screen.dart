@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.drawer.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.googlemaps.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home_dropdownbox.dart';
 import 'package:queue_ease/src/features/chat/screens/chat_screen.dart';
+import 'package:queue_ease/src/features/common/snackbar.dart';
+import 'package:queue_ease/src/features/verification/screens/agent_dashboard.dart';
+import 'package:queue_ease/src/services/socket_service.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
@@ -31,6 +35,40 @@ class _HomeScreenState extends State<HomeScreen> {
     _getCurrentLocation();
     Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
     email = jwtDecodedToken['email'];
+    SocketService().initialize();
+
+    SocketService.newRequestStream.listen((event) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('New Request Received!'),
+              content: Text(
+                'Name: ${event.requester.firstName} ${event.requester.lastName}\n'
+                'Destination: ${event.destination}\n'
+                'Price: Rs ${event.price}',
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('VIEW'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Get.to(AgentDashboard(token: widget.token));
+                  },
+                ),
+                TextButton(
+                  child: const Text('CLOSE'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   Future<void> _getCurrentLocation() async {
@@ -59,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(Hive.box('user').get('user'));
     return Scaffold(
       appBar: AppBar(
         title: const Text(QETexts.appName),
@@ -117,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: QESizes.spaceBtwInputFields),
                       TextFormField(
                         decoration: const InputDecoration(
-                          labelText: QETexts.fare,
+                          labelText: "Rs. 1500",
                           prefixIcon: Icon(CupertinoIcons.money_dollar),
                         ),
                         enabled: false,
@@ -132,10 +171,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: QEColors.accent,
                                 ),
+                                // TODO: GO TO
                                 onPressed: () {
-                                  Get.to(ChatPage(
-                                    token: widget.token,
-                                  ));
+                                  SnackBarUtil.showSuccessBar(context,
+                                      "Your booking request has been sent!");
                                 },
                                 child: Text(
                                   "Find an Agent",

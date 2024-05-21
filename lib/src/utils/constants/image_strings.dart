@@ -9,7 +9,7 @@ class QEImage
    static const String onboardingScreen2 = "assets/images/ob2.png";
    static const String onboardingScreen3 = "assets/images/ob3.png";
 
-   // Default Profile URL
-   static const String profileImage = "https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png";
+   // Default Profile 
+   static const String profileImage = "assets/images/pp.png";
    
 }

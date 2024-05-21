@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
-import 'package:queue_ease/src/utils/constants/colors.dart';
+import 'package:queue_ease/src/features/common/snackbar.dart';
+import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 
+import '../../../utils/http/http_client.dart';
+
 class AgentRegistration extends StatefulWidget {
-  final token;
-  const AgentRegistration({Key? key, @required this.token}) : super(key: key);
+  final String token;
+  const AgentRegistration({Key? key, required this.token}) : super(key: key);
 
   @override
   State<AgentRegistration> createState() => _AgentRegistrationState();
@@ -30,6 +37,25 @@ class _AgentRegistrationState extends State<AgentRegistration> {
     phoneNumber = jwtDecodedToken['phoneNumber'];
   }
 
+  File? image;
+  final _picker = ImagePicker();
+
+  Future getImage() async {
+    final pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        image = File(pickedFile.path);
+      });
+    } else {
+      SnackBarUtil.showErrorBar(
+          context, "No image selected. Please try again later.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +70,10 @@ class _AgentRegistrationState extends State<AgentRegistration> {
                 child: Container(
                   height: 120,
                   width: 120,
-                  color: Colors.white,
+                  child: Image.asset(
+                    'assets/images/pp.png',
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ),
             ),
@@ -87,38 +116,71 @@ class _AgentRegistrationState extends State<AgentRegistration> {
             ),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      //TODO: Document code
-                    },
-                    child: const Row(
-                      children: [
-                        Icon(CupertinoIcons.doc),
-                        SizedBox(
-                          width: 2,
+                image == null
+                    ? Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            //TODO: Document code
+                            getImage();
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(CupertinoIcons.doc),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Text("DOCUMENT ↑↑"),
+                            ],
+                          ),
                         ),
-                        Text("DOCUMENT ↑↑"),
-                      ],
-                    ),
-                  ),
-                ),
+                      )
+                    : Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            getImage();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.green.withOpacity(0.5),
+                            side: const BorderSide(color: Colors.green),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(CupertinoIcons.doc),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Text(" Uploaded ↑↑"),
+                            ],
+                          ),
+                        ),
+                      ),
                 const SizedBox(width: QESizes.spaceBtwItems),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Your record has been submitted!',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          backgroundColor: QEColors.success,
-                        ),
-                      );
-                      Get.to(HomeScreen(
-                        token: widget.token,
-                      ));
+                    onPressed: () async {
+                      final Map<String, dynamic> data = {
+                        'firstName': firstName,
+                        'lastName': lastName,
+                        'email': email,
+                        'phoneNumber': phoneNumber
+                      };
+                      try {
+                        final res = await QEHttpHelper.post('agent', data);
+
+                        if (res['status']) {
+                          (Hive.box('user').get('user') as Map)
+                              .addAll({'isAgent': true});
+                        }
+
+                        if (!context.mounted) return;
+                        SnackBarUtil.showSuccessBar(
+                            context, 'Your record has been submitted!');
+                        Get.to(HomeScreen(
+                          token: widget.token,
+                        ));
+                      } catch (e) {
+                        SnackBarUtil.showErrorBar(context, e.toString());
+                      }
                     },
                     child: const Text("DONE"),
                   ),
