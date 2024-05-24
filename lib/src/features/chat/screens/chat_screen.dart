@@ -129,11 +129,6 @@ class _ChatPageState extends State<ChatPage> {
                   size: QESizes.iconMd,
                 ),
               ),
-              //GET IMAGE
-              const CircleAvatar(
-                backgroundImage: NetworkImage(
-                    "https://media.licdn.com/dms/image/D4D03AQFiNu9ZPWXEaw/profile-displayphoto-shrink_200_200/0/1671113442731?e=1721865600&v=beta&t=JmV1KvHU8vH_543LvXanZKNaN17bA_1MsqMAHCgJ8kU"),
-              ),
             ],
           ),
           title: Container(

@@ -51,19 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(QESizes.defaultSpace),
         child: Column(
           children: [
-            const Center(
-              child: SizedBox(
-                width: 120,
-                height: 120,
-                child: ClipOval(
-                  child: Image(
-                      image: AssetImage(QEImage.profileImage),
-                      fit: BoxFit.fill),
-                ),
-              ),
-            ),
             const SizedBox(
-              height: QESizes.spaceBtwItems * 4,
+              height: QESizes.spaceBtwItems * 6,
             ),
             Row(
               children: [

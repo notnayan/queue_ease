@@ -57,7 +57,6 @@ class _AgentDashboardState extends State<AgentDashboard> {
         title: const Text(QETexts.appName),
         elevation: 0,
       ),
-      drawer: MyDrawer(token: widget.token),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

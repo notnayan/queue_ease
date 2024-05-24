@@ -92,58 +92,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               //ITEM2
-              InkWell(
-                onTap: () => Get.to(const ChangePasswordScreen()),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: QEColors.primary,
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.lock,
-                        color: QEColors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: QESizes.spaceBtwItems,
-                    ),
-                    Text(
-                      "Change Password",
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const Spacer(),
-                    const Icon(
-                      CupertinoIcons.chevron_forward,
-                      color: QEColors.white,
-                    ),
-                  ],
-                ),
-              ),
+              // InkWell(
+              //   onTap: () => Get.to(const ChangePasswordScreen()),
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //         width: 50,
+              //         height: 50,
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(20),
+              //           color: QEColors.primary,
+              //         ),
+              //         child: const Icon(
+              //           CupertinoIcons.lock,
+              //           color: QEColors.white,
+              //         ),
+              //       ),
+              //       const SizedBox(
+              //         width: QESizes.spaceBtwItems,
+              //       ),
+              //       Text(
+              //         "Change Password",
+              //         style: Theme.of(context).textTheme.titleLarge,
+              //       ),
+              //       const Spacer(),
+              //       const Icon(
+              //         CupertinoIcons.chevron_forward,
+              //         color: QEColors.white,
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
-              const SizedBox(
-                height: QESizes.spaceBtwSections,
-              ),
+              // const SizedBox(
+              //   height: QESizes.spaceBtwSections,
+              // ),
 
-              //TITLE
-              Row(
-                children: [
-                  Text(
-                    "App",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(color: QEColors.accent),
-                  ),
-                ],
-              ),
-
-              const SizedBox(
-                height: QESizes.spaceBtwItems,
-              ),
+              // //TITLE
+              // Row(
+              //   children: [
+              //     Text(
+              //       "App",
+              //       style: Theme.of(context)
+              //           .textTheme
+              //           .headlineMedium
+              //           ?.copyWith(color: QEColors.accent),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(
+              //   height: QESizes.spaceBtwItems,
+              // ),
 
               //ITEM1
               InkWell(

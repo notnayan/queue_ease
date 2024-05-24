@@ -54,27 +54,22 @@ class _MyDrawerState extends State<MyDrawer> {
                   color: QEColors.primary,
                 ),
                 accountName: Hive.box('user').get('user')['isAgent'] == false
-                    ? Text(
-                        firstName + (' (USER)'),
-                        style: Theme.of(context).textTheme.titleLarge,
-                      )
-                    : Text(
-                        firstName + (' (AGENT)'),
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                accountEmail: Text(
-                  email,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                //  TODO: PROFILE PICTURE
-                currentAccountPicture: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: QEColors.accent, width: 2),
-                    image: const DecorationImage(
-                      image: AssetImage(QEImage.profileImage),
-                      fit: BoxFit.fill,
+                    ? Center(
+                      child: Text(
+                          firstName + (' (USER)'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                    )
+                    : Center(
+                      child: Text(
+                          firstName + (' (AGENT)'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                     ),
+                accountEmail: Center(
+                  child: Text(
+                    email,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
               ),
@@ -140,6 +135,23 @@ class _MyDrawerState extends State<MyDrawer> {
                 ),
                 title: const Text(
                   "R E Q U E S T S",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+              //if (),
+              ListTile(
+                onTap: () {
+                  Get.to(AgentDashboard(
+                    token: widget.token,
+                  ));
+                },
+                leading: const Icon(
+                  CupertinoIcons.chat_bubble_2,
+                  color: Colors.white,
+                ),
+                title: const Text(
+                  "C H A T S",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.white),
                 ),
