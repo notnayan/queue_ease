@@ -18,6 +18,24 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  File? image;
+  final _picker = ImagePicker();
+
+  Future getImage() async {
+    final pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        image = File(pickedFile.path);
+      });
+    } else {
+      SnackBarUtil.showErrorBar(
+          context, "No image selected. Please try again later.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,32 +47,76 @@ class _SignupScreenState extends State<SignupScreen> {
             QESizes.defaultSpace,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center, 
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Center( 
-                child: Column(
-                  children: [
-                    Text(
-                      QETexts.signupTitle1,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineLarge
-                          ?.copyWith(color: QEColors.primary),
-                    ),
-                    Text(
-                      QETexts.signupTitle2,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(color: QEColors.accent),
-                    ),
-                  ],
-                ),
+              Row(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        QETexts.signupTitle1,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineLarge
+                            ?.copyWith(color: QEColors.primary),
+                      ),
+                      Text(
+                        QETexts.signupTitle2,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(color: QEColors.accent),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    width: QESizes.spaceBtwItems,
+                  ),
+                  Stack(
+                    children: [
+                      SizedBox(
+                        width: 135,
+                        height: 135,
+                        child: ClipOval(
+                          child: Container(
+                            child: image == null
+                                ? const Image(
+                                    image: NetworkImage(
+                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.file(
+                                    File(image!.path).absolute,
+                                    fit: BoxFit.fill,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: QEColors.primary),
+                          child: IconButton(
+                            onPressed: () {
+                              getImage();
+                            },
+                            icon: const Icon(CupertinoIcons.pencil_outline),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
               ),
 
               const SizedBox(
-                height: QESizes.spaceBtwSections*3,
+                height: QESizes.spaceBtwSections * 3,
               ),
 
               // Form

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class QEHttpHelper {
-  static const String baseURL = 'http://10.22.24.146:8000'; // Replcase with your API base URL
+  static const String baseURL =
+      'http://192.168.254.93:8000'; // Replcase with your API base URL
 
   // Helper method to make a GET request
   static Future<Map<String, dynamic>> get(String endpoint) async {
@@ -11,7 +12,8 @@ class QEHttpHelper {
   }
 
   // Helper method to make a POST request
-  static Future<Map<String, dynamic>> post(String endpoint, dynamic data) async {
+  static Future<Map<String, dynamic>> post(
+      String endpoint, dynamic data) async {
     final response = await http.post(
       Uri.parse('$baseURL/$endpoint'),
       headers: {'Content-Type': 'application/json'},
@@ -36,8 +38,15 @@ class QEHttpHelper {
   }
 
   // Helper method to make a DELETE request
-  static Future<Map<String, dynamic>> delete(String endpoint) async {
-    final response = await http.delete(Uri.parse('$baseURL/$endpoint'));
+  static Future<Map<String, dynamic>> delete(
+      String endpoint, String token) async {
+    final response = await http.delete(
+      Uri.parse('$baseURL/$endpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
     return _handleResponse(response);
   }
 

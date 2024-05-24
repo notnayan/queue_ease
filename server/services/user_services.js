@@ -39,6 +39,8 @@ class UserService {
     }
   }
 
+
+
   static async generateToken(tokenData, secretKey, jwt_expire) {
     return jwt.sign(tokenData, secretKey, { expiresIn: jwt_expire });
   }
@@ -55,5 +57,7 @@ class UserService {
     }
   }
 }
+
+
 
 module.exports = UserService;

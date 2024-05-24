@@ -91,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 height: QESizes.spaceBtwItems,
               ),
 
-              //ITEM2
+            // ITEM2
               // InkWell(
               //   onTap: () => Get.to(const ChangePasswordScreen()),
               //   child: Row(
@@ -124,25 +124,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
               //   ),
               // ),
 
-              // const SizedBox(
-              //   height: QESizes.spaceBtwSections,
-              // ),
+              const SizedBox(
+                height: QESizes.spaceBtwSections,
+              ),
 
               // //TITLE
-              // Row(
-              //   children: [
-              //     Text(
-              //       "App",
-              //       style: Theme.of(context)
-              //           .textTheme
-              //           .headlineMedium
-              //           ?.copyWith(color: QEColors.accent),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(
-              //   height: QESizes.spaceBtwItems,
-              // ),
+              Row(
+                children: [
+                  Text(
+                    "App",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: QEColors.accent),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: QESizes.spaceBtwItems,
+              ),
 
               //ITEM1
               InkWell(

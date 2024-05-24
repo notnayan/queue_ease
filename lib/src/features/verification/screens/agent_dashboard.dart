@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:queue_ease/src/features/booking/screens/home/home.widgets/home.drawer.dart';
 import 'package:queue_ease/src/features/chat/screens/chat_screen.dart';
 import 'package:queue_ease/src/services/socket_service.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
-import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
 import 'package:queue_ease/src/utils/http/http_client.dart';
 

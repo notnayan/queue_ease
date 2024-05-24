@@ -53,24 +53,30 @@ class _MyDrawerState extends State<MyDrawer> {
                 decoration: const BoxDecoration(
                   color: QEColors.primary,
                 ),
-                accountName: Hive.box('user').get('user')['isAgent'] == false
-                    ? Center(
-                      child: Text(
-                          firstName + (' (USER)'),
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                    )
-                    : Center(
-                      child: Text(
-                          firstName + (' (AGENT)'),
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                //TODO: GET PROFILE
+                currentAccountPicture: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: QEColors.accent, width: 2),
+                    image: const DecorationImage(
+                      image: NetworkImage(
+                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+                      fit: BoxFit.fill,
                     ),
-                accountEmail: Center(
-                  child: Text(
-                    email,
-                    style: Theme.of(context).textTheme.titleSmall,
                   ),
+                ),
+                accountName: Hive.box('user').get('user')['isAgent'] == false
+                    ? Text(
+                        firstName + (' (USER)'),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      )
+                    : Text(
+                        firstName + (' (AGENT)'),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                accountEmail: Text(
+                  email,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
             ),
@@ -139,25 +145,25 @@ class _MyDrawerState extends State<MyDrawer> {
                       fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
-              //if (),
-              ListTile(
-                onTap: () {
-                  Get.to(AgentDashboard(
-                    token: widget.token,
-                  ));
-                },
-                leading: const Icon(
-                  CupertinoIcons.chat_bubble_2,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  "C H A T S",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+            //if (),
+            ListTile(
+              onTap: () {
+                Get.to(AgentDashboard(
+                  token: widget.token,
+                ));
+              },
+              leading: const Icon(
+                CupertinoIcons.chat_bubble_2,
+                color: Colors.white,
               ),
+              title: const Text(
+                "C H A T S",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ),
             const SizedBox(
-              height: 210,
+              height: 70,
             ),
             if (Hive.box('user').get('user')['isAgent'] == false)
               Padding(
@@ -205,8 +211,10 @@ class _MyDrawerState extends State<MyDrawer> {
                           });
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(QESizes.iconMd),
-                    ),
+                        padding: const EdgeInsets.all(QESizes.iconMd),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30)))),
                     child: const Text("AGENT MODE")),
               )
           ],

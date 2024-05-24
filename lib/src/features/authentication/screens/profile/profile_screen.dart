@@ -5,12 +5,12 @@ import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:queue_ease/src/features/authentication/screens/welcome/welcome_screen.dart';
 import 'package:queue_ease/src/features/common/snackbar.dart';
-import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
+import 'package:queue_ease/src/utils/http/http_client.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final token;
-  const ProfileScreen({super.key, @required this.token});
+  final String token;
+  const ProfileScreen({super.key, required this.token});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -32,17 +32,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     phoneNumber = jwtDecodedToken['phoneNumber'];
   }
 
-  @override
-  Widget build(BuildContext context) {
-    void logoutUser() async {
-      // Clear data stored in the Hive box
+  void logoutUser() async {
+    var box = await Hive.openBox('localData');
+    await box.clear();
+    Get.offAll(const WelcomeScreen());
+  }
+
+  void deleteUser() async {
+    try {
+      await QEHttpHelper.delete('delete-user', widget.token);
       var box = await Hive.openBox('localData');
       await box.clear();
-
-      // Redirect user to the welcome screen
       Get.offAll(const WelcomeScreen());
+      SnackBarUtil.showSuccessBar(context, "User Deleted Successfully");
+    } catch (error) {
+      SnackBarUtil.showErrorBar(context, "Failed to delete user: $error");
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
@@ -51,8 +60,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(QESizes.defaultSpace),
         child: Column(
           children: [
+            const Center(
+              child: SizedBox(
+                width: 120,
+                height: 120,
+                child: ClipOval(
+                  child: Image(
+                    image: NetworkImage(
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(
-              height: QESizes.spaceBtwItems * 6,
+              height: QESizes.spaceBtwItems * 2,
             ),
             Row(
               children: [
@@ -148,14 +170,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(
               height: QESizes.buttonHeight,
             ),
-            // SizedBox(
-            //   width: double.infinity,
-            //   child: ElevatedButton.icon(
-            //     onPressed: () {},
-            //     icon: const Icon(CupertinoIcons.trash),
-            //     label: const Text("DELETE ACCOUNT"),
-            //   ),
-            // ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CupertinoAlertDialog(
+                          title: const Text(
+                            "DELETE ACCOUNT",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          content: const Text(
+                            "Are you sure you want to delete your account?",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          actions: [
+                            MaterialButton(
+                              onPressed: () {
+                                deleteUser();
+                              },
+                              child: const Text(
+                                "YES",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "NO",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      });
+                },
+                icon: const Icon(CupertinoIcons.trash),
+                label: const Text("DELETE ACCOUNT"),
+              ),
+            ),
           ],
         ),
       ),

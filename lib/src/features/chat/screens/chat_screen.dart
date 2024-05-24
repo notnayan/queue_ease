@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
+import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/http/http_client.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,7 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   bool loading = true;
   final TextEditingController _messageController = TextEditingController();
   final List<String> _messages = [];
-  final List<bool> _isUserMessage = []; 
+  final List<bool> _isUserMessage = [];
 
   // Phone call to agent or user number
   Future<void> makePhoneCall(String phoneQE) async {
@@ -102,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
     if (_messageController.text.isNotEmpty) {
       setState(() {
         _messages.add(_messageController.text);
-        _isUserMessage.add(true); // Assuming the current user sent this message
+        _isUserMessage.add(true);
         _messageController.clear();
       });
     }
@@ -129,6 +130,11 @@ class _ChatPageState extends State<ChatPage> {
                   size: QESizes.iconMd,
                 ),
               ),
+              //TODO: GET IMAGE
+              const CircleAvatar(
+                backgroundImage: NetworkImage(
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+              )
             ],
           ),
           title: Container(

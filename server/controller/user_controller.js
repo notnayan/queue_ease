@@ -8,6 +8,8 @@ const secretKey = 'secretKey';
 const jwt = require("jsonwebtoken");
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require("bcrypt");
+
 exports.register = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phoneNumber } = req.body;
@@ -16,7 +18,7 @@ exports.register = async (req, res) => {
       lastName,
       email,
       password,
-      phoneNumber
+      phoneNumber,
     );
     res.json({ status: true, success: "User Registered Successfully !!!" });
   } catch (error) {
@@ -144,9 +146,59 @@ exports.getProfilePicture = async (req, res) => {
   }
 }
 
+exports.deleteUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
 
+    const decoded = jwt.verify(token, 'secretKey');
+    const userId = decoded._id; 
 
+    const user = await userModel.findByIdAndDelete(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
+exports.updatePassword = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const { currentPassword, newPassword } = req.body;
 
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Current password and new password are required" });
+    }
+
+    const decoded = jwt.verify(token, 'secretKey');
+    const userId = decoded._id;
+
+    const user = await userModel.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
