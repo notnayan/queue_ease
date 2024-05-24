@@ -1,9 +1,13 @@
 const UserService = require("../services/user_services");
 const userModel = require("../model/user_models").userModel;
 const userLoginModel = require("../model/user_models").userLoginModel;
-
+const db = require("../database/database_connection");
 const userService = new UserService(userModel, userLoginModel);
-
+const upload = require("../services/profilehelper");
+const secretKey = 'secretKey';
+const jwt = require("jsonwebtoken");
+const path = require('path');
+const fs = require('fs');
 exports.register = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phoneNumber } = req.body;
@@ -68,3 +72,81 @@ exports.becomeAgent = async (req, res) => {
     res.status(500).json({ status: false, error: "Failed to login" });
   }
 };
+
+exports.uploadProfile = async (req, res) => {
+  try {
+    console.log("Upload profile function called");
+    const token = req.headers.authorization.split(" ")[1];
+    console.log("JWT token:", token);
+
+    const decoded = jwt.verify(token, 'secretKey');
+    console.log("Decoded token:", decoded);
+    const userId = decoded._id; 
+    console.log("User ID:", userId);
+
+    const user = await userModel.findById(userId);
+    console.log("User found:", user);
+    if (!user) {
+      console.log("User not found");
+      return res.json("User not found");
+    }
+
+    user.profilePicture = req.file.filename;
+    console.log("Updating profile picture for user:", user);
+    const updatedUser = await userModel.findOneAndUpdate(
+      { _id: userId },
+      { $set: { profilePicture: user.profilePicture } },
+      { new: true } 
+    );
+
+    if (updatedUser) {
+      console.log("Profile picture uploaded successfully");
+      return res.status(200).json({ message: "Profile picture uploaded successfully" });
+    } else {
+      console.log("Failed to upload profile picture");
+      throw new Error("Failed to upload profile picture");
+    }
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+exports.getProfilePicture = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+
+    const decoded = jwt.verify(token, 'secretKey');
+    const userId = decoded._id; 
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.profilePicture) {
+      return res.status(404).json({ error: "Profile picture not found" });
+    }
+
+    const imagePath = path.join(__dirname, '../uploads', user.profilePicture);
+    
+    const contentType = 'image/jpeg'; 
+
+    fs.createReadStream(imagePath).pipe(res).on('error', (error) => {
+      console.error("Error streaming profile picture:", error);
+      res.status(500).json({ error: "Internal server error" });
+    });
+
+    res.setHeader('Content-Type', contentType);
+  } catch (error) {
+    console.error("Error getting profile picture:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
+
+
+
+
+

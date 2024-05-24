@@ -33,6 +33,9 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  documents: {
+    type: String,
+  }
 });
 
 const userLoginSchema = new Schema({
