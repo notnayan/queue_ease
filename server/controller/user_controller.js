@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     if (!user) {
       throw new Error("User doesn't exist");
     }
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new Error("Invalid Password");
     }

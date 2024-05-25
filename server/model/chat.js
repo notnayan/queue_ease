@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const db = require("../database/database_connection");
 
 const chatSchema = new mongoose.Schema({
+  requestId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Request",
+    required: true,
+  },
   users: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -14,23 +19,6 @@ const chatSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
-    },
-  ],
-
-  lastRead: [
-    {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-      message: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Message",
-      },
-      updatedAt: {
-        type: Date,
-        default: Date.now,
-      },
     },
   ],
 

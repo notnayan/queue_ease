@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -60,21 +62,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(QESizes.defaultSpace),
         child: Column(
           children: [
-            const Center(
-              child: SizedBox(
-                width: 120,
-                height: 120,
-                child: ClipOval(
-                  child: Image(
-                    image: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-            ),
             const SizedBox(
-              height: QESizes.spaceBtwItems * 2,
+              height: QESizes.spaceBtwItems * 5,
             ),
             Row(
               children: [

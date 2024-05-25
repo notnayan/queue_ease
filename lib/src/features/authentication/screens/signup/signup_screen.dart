@@ -50,71 +50,26 @@ class _SignupScreenState extends State<SignupScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        QETexts.signupTitle1,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineLarge
-                            ?.copyWith(color: QEColors.primary),
-                      ),
-                      Text(
-                        QETexts.signupTitle2,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(color: QEColors.accent),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    width: QESizes.spaceBtwItems,
-                  ),
-                  Stack(
-                    children: [
-                      SizedBox(
-                        width: 135,
-                        height: 135,
-                        child: ClipOval(
-                          child: Container(
-                            child: image == null
-                                ? const Image(
-                                    image: NetworkImage(
-                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
-                                    fit: BoxFit.fill,
-                                  )
-                                : Image.file(
-                                    File(image!.path).absolute,
-                                    fit: BoxFit.fill,
-                                  ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          width: 35,
-                          height: 35,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: QEColors.primary),
-                          child: IconButton(
-                            onPressed: () {
-                              getImage();
-                            },
-                            icon: const Icon(CupertinoIcons.pencil_outline),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      QETexts.signupTitle1,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineLarge
+                          ?.copyWith(color: QEColors.primary),
+                    ),
+                    Text(
+                      QETexts.signupTitle2,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(color: QEColors.accent),
+                    ),
+                  ],
+                ),
+              ),            
               const SizedBox(
                 height: QESizes.spaceBtwSections * 3,
               ),

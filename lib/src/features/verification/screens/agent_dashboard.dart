@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:queue_ease/src/features/chat/screens/chat_screen.dart';
 import 'package:queue_ease/src/services/socket_service.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
@@ -71,7 +72,14 @@ class _AgentDashboardState extends State<AgentDashboard> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: requests.length,
                 itemBuilder: (context, index) {
-                  return _buildRequestCard(requests[index]);
+                  return _buildRequestCard(
+                    requests[index],
+                    onReject: () {
+                      setState(() {
+                        requests.removeAt(index);
+                      });
+                    },
+                  );
                 },
               ),
             ],
@@ -81,7 +89,8 @@ class _AgentDashboardState extends State<AgentDashboard> {
     );
   }
 
-  Widget _buildRequestCard(Request request) {
+  Widget _buildRequestCard(Request request,
+      {required void Function() onReject}) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -119,13 +128,12 @@ class _AgentDashboardState extends State<AgentDashboard> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                    onPressed: () {
-                      Get.to(() => ChatPage(
-                            receiverId: request.requester.id,
-                            name:
-                                '${request.requester.firstName} ${request.requester.lastName}',
-                            phoneNumber: request.requester.phoneNumber,
-                          ));
+                    onPressed: () async {
+                      await QEHttpHelper.post('request/accept', {
+                        'requestId': request.id,
+                        'agentId': Hive.box('user').get('user')['_id']
+                      });
+                      Get.to(() => const ChatPage());
                     },
                     child: Text(
                       'ACCEPT',
@@ -136,7 +144,9 @@ class _AgentDashboardState extends State<AgentDashboard> {
                     )),
                 const SizedBox(width: 10),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    onReject();
+                  },
                   child: Text(
                     'REJECT',
                     style: Theme.of(context)
@@ -165,6 +175,7 @@ class TimerWidget extends StatefulWidget {
 class _TimerWidgetState extends State<TimerWidget> {
   // time remaining
   int time = 0;
+  late Timer timer;
   late DateTime dtCreatedAt;
 
   String get timerString {
@@ -188,7 +199,7 @@ class _TimerWidgetState extends State<TimerWidget> {
     super.initState();
     dtCreatedAt = DateTime.parse(widget.createdAt);
 
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         time = dtCreatedAt
             .add(const Duration(hours: 1))
@@ -196,6 +207,12 @@ class _TimerWidgetState extends State<TimerWidget> {
             .inSeconds;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override

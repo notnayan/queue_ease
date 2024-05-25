@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -63,17 +65,8 @@ class _AgentRegistrationState extends State<AgentRegistration> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Center(
-              //TODO: GET IMAGE
-              child: ClipOval(
-                child: SizedBox(
-                    height: 120,
-                    width: 120,
-                    child: Image.network(
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s",
-                      fit: BoxFit.fill,
-                    )),
-              ),
+            const SizedBox(
+              height: QESizes.spaceBtwItems * 5,
             ),
             Row(
               children: [
@@ -137,6 +130,7 @@ class _AgentRegistrationState extends State<AgentRegistration> {
                         ));
                       } catch (e) {
                         SnackBarUtil.showErrorBar(context, e.toString());
+                        print(e);
                       }
                     },
                     child: const Text("DONE"),

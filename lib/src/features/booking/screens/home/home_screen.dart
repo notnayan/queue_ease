@@ -16,7 +16,10 @@ import 'package:queue_ease/src/services/socket_service.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/constants/text_strings.dart';
+import 'package:queue_ease/src/utils/http/http_client.dart';
+import 'package:queue_ease/src/data/location.dart' as l;
 
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 class HomeScreen extends StatefulWidget {
   final token;
   const HomeScreen({Key? key, @required this.token}) : super(key: key);
@@ -29,15 +32,33 @@ class _HomeScreenState extends State<HomeScreen> {
   String _currentAddress = '';
   late String email;
 
+  l.Location? _selectedVal = l.location[0];
+  bool isLoading = true;
+
+  late bool isSearching;
+
+  void getIsSearching() async {
+    final res = await QEHttpHelper.post(
+      'request/isSearching',
+      {"userId": Hive.box('user').get('user')['_id']},
+    );
+    isSearching = res['isSearching'];
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    getIsSearching();
     _getCurrentLocation();
     Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
     email = jwtDecodedToken['email'];
     SocketService().initialize();
 
     SocketService.newRequestStream.listen((event) {
+      if(Hive.box('user').get('user')['isAgent'] == false) return;
       if (mounted) {
         showDialog(
           context: context,
@@ -69,6 +90,19 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
+
+    SocketService().listen('requestAccepted', (request) {
+      print(request);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatPage(
+                    receiverId: request['acceptedBy']['_id'],
+                    name: request['acceptedBy']['firstName'] + ' ' + request['acceptedBy']['lastName'],
+                    phoneNumber: request['acceptedBy']['phoneNumber'],
+                    requestId: request['_id'],
+                  )));
+    });
   }
 
   Future<void> _getCurrentLocation() async {
@@ -81,14 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
       }
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark place = placemarks[0];
       setState(() {
-        _currentAddress =
-            "${place.name}, ${place.subLocality}, ${place.locality}";
+        _currentAddress = "${place.name}, ${place.subLocality}, ${place.locality}";
       });
     } catch (e) {
       print(e);
@@ -99,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     print(Hive.box('user').get('user'));
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text(QETexts.appName),
         elevation: 0,
@@ -131,8 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: QEColors.primary,
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(8, QESizes.defaultSpace, 8, 0),
+                  padding: const EdgeInsets.fromLTRB(8, QESizes.defaultSpace, 8, 0),
                   child: Column(
                     children: [
                       Row(
@@ -141,9 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: QESizes.xs),
                           Expanded(
                             child: Text(
-                              _currentAddress.isNotEmpty
-                                  ? _currentAddress
-                                  : "Fetching location...",
+                              _currentAddress.isNotEmpty ? _currentAddress : "Fetching location...",
                               style: Theme.of(context).textTheme.titleMedium,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -152,15 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: QESizes.spaceBtwSections),
-                      const HomeDropDownMenu(),
-                      const SizedBox(height: QESizes.spaceBtwInputFields),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: "Rs. 1500",
-                          prefixIcon: Icon(CupertinoIcons.money_dollar),
-                        ),
-                        enabled: false,
-                      ),
+                      HomeDropDownMenu(onChanged: (val) => _selectedVal = val),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
@@ -171,15 +192,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: QEColors.accent,
                                 ),
-                                // TODO: GO TO
                                 onPressed: () {
-                                  SnackBarUtil.showSuccessBar(context,
-                                      "Your booking request has been sent!");
+                                  if (isSearching) {
+                                    try {
+                                      QEHttpHelper.post('request/cancel', {
+                                        "userId": Hive.box('user').get('user')['_id'],
+                                      });
+                                      SnackBarUtil.showSuccessBar(context, "Your search has been cancelled!");
+                                      setState(() {
+                                        isSearching = false;
+                                      });
+                                    } catch (e) {
+                                      SnackBarUtil.showErrorBar(context, "An error occured while cancelling your search");
+                                    }
+                                    return;
+                                  }
+                                  try {
+                                    QEHttpHelper.post('request', {
+                                      "requesterId": Hive.box('user').get('user')['_id'],
+                                      "destination": _selectedVal?.destination,
+                                      "price": _selectedVal?.price
+                                    });
+
+                                    SnackBarUtil.showSuccessBar(context, "Your booking request has been sent!");
+                                    setState(() {
+                                      isSearching = true;
+                                    });
+                                  } catch (e) {
+                                    SnackBarUtil.showErrorBar(context, "An error occured while sending your request");
+                                  }
                                 },
-                                child: Text(
-                                  "Find an Agent",
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                    : Text(
+                                        isSearching ? "Cancel Search" : "Find an Agent",
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                      ),
                               ),
                             ),
                           ],

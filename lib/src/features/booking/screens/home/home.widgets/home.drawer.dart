@@ -1,15 +1,20 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
+import 'package:queue_ease/src/features/chat/screens/chat_screen.dart';
 import 'package:queue_ease/src/features/common/settings_screen.dart';
 import 'package:queue_ease/src/features/authentication/screens/profile/profile_screen.dart';
+import 'package:queue_ease/src/features/common/snackbar.dart';
 import 'package:queue_ease/src/features/verification/screens/agent.registration.dart';
 import 'package:queue_ease/src/features/verification/screens/agent_dashboard.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
-import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
+import 'package:queue_ease/src/utils/http/http_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyDrawer extends StatefulWidget {
@@ -53,30 +58,24 @@ class _MyDrawerState extends State<MyDrawer> {
                 decoration: const BoxDecoration(
                   color: QEColors.primary,
                 ),
-                //TODO: GET PROFILE
-                currentAccountPicture: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: QEColors.accent, width: 2),
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
                 accountName: Hive.box('user').get('user')['isAgent'] == false
-                    ? Text(
-                        firstName + (' (USER)'),
-                        style: Theme.of(context).textTheme.titleLarge,
+                    ? Center(
+                        child: Text(
+                          firstName + (' (USER)'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                       )
-                    : Text(
-                        firstName + (' (AGENT)'),
-                        style: Theme.of(context).textTheme.titleLarge,
+                    : Center(
+                        child: Text(
+                          firstName + (' (AGENT)'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                       ),
-                accountEmail: Text(
-                  email,
-                  style: Theme.of(context).textTheme.titleSmall,
+                accountEmail: Center(
+                  child: Text(
+                    email,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
               ),
             ),
@@ -145,12 +144,20 @@ class _MyDrawerState extends State<MyDrawer> {
                       fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
-            //if (),
             ListTile(
-              onTap: () {
-                Get.to(AgentDashboard(
-                  token: widget.token,
-                ));
+              onTap: () async {
+                final res = await QEHttpHelper.post(
+                  'request/isAccepted',
+                  {"userId": Hive.box('user').get('user')['_id']},
+                );
+                print(res);
+                if (!res['isSearching']) {
+                  SnackBarUtil.showErrorBar(context, "No messages yet!");
+                  scaffoldKey.currentState?.closeDrawer();
+                  return;
+                }
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const ChatPage()));
               },
               leading: const Icon(
                 CupertinoIcons.chat_bubble_2,

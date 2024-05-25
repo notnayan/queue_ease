@@ -1,22 +1,30 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
+import 'package:queue_ease/src/features/booking/screens/home/home_screen.dart';
+import 'package:queue_ease/src/services/socket_service.dart';
 import 'package:queue_ease/src/utils/constants/colors.dart';
-import 'package:queue_ease/src/utils/constants/image_strings.dart';
 import 'package:queue_ease/src/utils/constants/sizes.dart';
 import 'package:queue_ease/src/utils/http/http_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final GlobalKey<ScaffoldState> chatScaffoldKey = GlobalKey();
+
 class ChatPage extends StatefulWidget {
-  final String receiverId;
-  final String name;
-  final String phoneNumber;
+  final String? requestId;
+  final String? receiverId;
+  final String? name;
+  final String? phoneNumber;
   const ChatPage(
       {super.key,
-      required this.receiverId,
-      required this.name,
-      required this.phoneNumber});
+      this.receiverId,
+      this.name,
+      this.phoneNumber,
+      this.requestId});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -26,8 +34,12 @@ class _ChatPageState extends State<ChatPage> {
   String referenceId = "";
   bool loading = true;
   final TextEditingController _messageController = TextEditingController();
-  final List<String> _messages = [];
-  final List<bool> _isUserMessage = [];
+
+  String name = 'Loading ..';
+  String phoneNumber = 'Loading ..';
+  String chatId = '';
+  List<dynamic> messages = [];
+  num? price;
 
   // Phone call to agent or user number
   Future<void> makePhoneCall(String phoneQE) async {
@@ -38,23 +50,56 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    connectToSocket();
+    if (widget.name != null) {
+      name = widget.name!;
+    }
+
+    if (widget.phoneNumber != null) {
+      phoneNumber = widget.phoneNumber!;
+    }
+
+    getChat();
   }
 
-  Future<void> connectToSocket() async {
-    final chatId = await QEHttpHelper.post('chat/${widget.receiverId}', {
+  void getChat() async {
+    final res = await QEHttpHelper.post('chat', {
       'userId': Hive.box('user').get('user')['_id'],
     });
 
-    print(chatId);
+    final chat = res['chats'];
+    setState(() {
+      name = chat['users'][0]['firstName'] + " " + chat['users'][0]['lastName'];
+      phoneNumber = chat['users'][0]['phoneNumber'];
+      chatId = chat['_id'];
+      messages = chat['messages'] ?? [];
+      price = res['request']['price'] ?? 9999;
+    });
 
-    // SocketService().listen(chatId, (data) => null);
+    messages = messages.reversed.toList();
+
+    SocketService().listen(chat['_id'], (data) {
+      print(data);
+      setState(() {
+        messages.insert(0, data['message']);
+      });
+    });
+
+    SocketService().listen("endRequest", (data) {
+      print(data);
+      Navigator.pop(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    SocketService().removeListener(chatId);
+    super.dispose();
   }
 
   payWithKhaltiInApp() {
     KhaltiScope.of(context).pay(
       config: PaymentConfig(
-        amount: 150000,
+        amount: price!.toInt() * 1,
         productIdentity: 'Product Id',
         productName: 'Product Name',
         mobileReadOnly: false,
@@ -68,8 +113,12 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void onSuccess(PaymentSuccessModel success) {
+  void onSuccess(PaymentSuccessModel success) async {
+    await QEHttpHelper.post("request/endChat", {
+      'userId': Hive.box('user').get('user')['_id'],
+    });
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -82,6 +131,9 @@ class _ChatPageState extends State<ChatPage> {
                     referenceId = success.idx;
                   });
                   Navigator.pop(context);
+                  if (chatScaffoldKey.currentState != null) {
+                    Navigator.pop(chatScaffoldKey.currentState!.context);
+                  }
                 })
           ],
         );
@@ -99,19 +151,22 @@ class _ChatPageState extends State<ChatPage> {
     debugPrint('Cancelled');
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     if (_messageController.text.isNotEmpty) {
-      setState(() {
-        _messages.add(_messageController.text);
-        _isUserMessage.add(true);
-        _messageController.clear();
+      await QEHttpHelper.post('chat/send', {
+        "chatId": chatId,
+        "text": _messageController.text,
+        "userId": Hive.box('user').get('user')['_id'],
       });
+
+      _messageController.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: chatScaffoldKey,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
@@ -130,25 +185,20 @@ class _ChatPageState extends State<ChatPage> {
                   size: QESizes.iconMd,
                 ),
               ),
-              //TODO: GET IMAGE
-              const CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
-              )
             ],
           ),
           title: Container(
             margin: const EdgeInsets.all(5),
             child: Column(
               children: [
-                Text(widget.name, style: Theme.of(context).textTheme.titleLarge)
+                Text(name, style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
           ),
           actions: [
             IconButton(
               onPressed: () {
-                makePhoneCall(widget.phoneNumber);
+                makePhoneCall(phoneNumber);
               },
               icon: const Icon(Icons.call),
             ),
@@ -168,9 +218,9 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                         actions: [
                           MaterialButton(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(context);
-                              showModalBottomSheet(
+                              await showModalBottomSheet(
                                 context: context,
                                 builder: (context) {
                                   return Container(
@@ -218,7 +268,10 @@ class _ChatPageState extends State<ChatPage> {
                                                                   Radius
                                                                       .circular(
                                                                           20)))),
-                                              onPressed: payWithKhaltiInApp,
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                payWithKhaltiInApp();
+                                              },
                                               child: const Text(
                                                 "KHALTI",
                                                 style: TextStyle(
@@ -255,6 +308,7 @@ class _ChatPageState extends State<ChatPage> {
                                   );
                                 },
                               );
+                              Navigator.pop(context);
                             },
                             child: const Text(
                               "YES",
@@ -284,38 +338,78 @@ class _ChatPageState extends State<ChatPage> {
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        child: Stack(
+        child: Column(
           children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        controller: _messageController,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 5,
-                        minLines: 1,
-                        decoration: InputDecoration(
-                          labelText: "Type a message",
-                          contentPadding:
-                              const EdgeInsets.all(QESizes.spaceBtwInputFields),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: IconButton(
-                              icon: const Icon(CupertinoIcons.paperplane),
-                              onPressed: _sendMessage,
+            Expanded(
+              child: ListView.builder(
+                  reverse: true,
+                  itemBuilder: (context, index) {
+                    final isSentByMe = messages[index]['sender'] ==
+                        Hive.box('user').get('user')['_id'];
+                    return ListTile(
+                      title: Row(
+                          mainAxisAlignment: isSentByMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: [Text(isSentByMe ? "YOU" : name)]),
+                      subtitle: Row(
+                        mainAxisAlignment: isSentByMe
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.start,
+                        children: [
+                          Text(messages[index]['text']),
+                        ],
+                      ),
+                      leading: isSentByMe
+                          ? null
+                          : const CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+                            ),
+                      trailing: isSentByMe
+                          ? const CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq9Q8_e7jHb57d-9Ym5Ryv-R2HkRPLx6YE9TKLixS7pA&s'),
+                            )
+                          : null,
+                    );
+                  },
+                  itemCount: messages.length),
+            ),
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            controller: _messageController,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: 5,
+                            minLines: 1,
+                            decoration: InputDecoration(
+                              labelText: "Type a message",
+                              contentPadding: const EdgeInsets.all(
+                                  QESizes.spaceBtwInputFields),
+                              suffixIcon: Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: IconButton(
+                                  icon: const Icon(CupertinoIcons.paperplane),
+                                  onPressed: _sendMessage,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )
+                )
+              ],
+            ),
           ],
         ),
       ),
